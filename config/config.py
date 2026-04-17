@@ -1,3 +1,5 @@
+from pathlib import Path
+
 # Paths
 manifest_path = Path(f"/content/drive/MyDrive/APAI_CVDL_shared/project/meta/manifest.parquet")
 LOCAL_ROOT = Path("/content/project_data/data/pre/img/")
