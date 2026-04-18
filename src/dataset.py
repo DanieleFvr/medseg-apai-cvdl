@@ -1,4 +1,5 @@
 import os
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
@@ -111,47 +112,48 @@ def build_datasets(
 
 
 def build_dataloaders(
-
+        train_ds: torch.utils.data.Dataset,
+        val_ds: torch.utils.data.Dataset,
+        df_train: pd.DataFrame,
+        oversample: bool,
+        k: float
 ) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
     """
     This function builds the training and validation dataloaders.
 
     Args:
-        ...
+        val_ds (torch.utils.data.Dataset): the validation dataset.
+        train_ds (torch.utils.data.Dataset): the training dataset.
+        df_train (pd.DataFrame): dataframe containing training data.
+        oversample (bool): whether to oversample the labels.
+        k (float): the oversampling multiplier used by WeightedRandomSampler.
     Returns:
         tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]: the training and validation dataloaders.
     """
-    # oversampling flag
-    oversample = True
-
-    # oversampling multiplier
-    k = 0.5
-
-    # generate a numpy array of ints corresponding to classes of samples in the train split
-    # note: label[i] corresponds to dataset item i, because Dataset resets indexes
+    # Generate a numpy array of ints corresponding to classes of samples in the train split
+    # Note: label[i] corresponds to Dataset item i, because Dataset resets indexes
     labels = df_train["class"].to_numpy().astype(np.int64)
 
-    # get the number of positive and negative samples
+    # Get the number of positive and negative samples
     n_pos = labels.sum()
     assert n_pos > 0
     n_neg = len(labels) - n_pos
 
-    if oversample == True:
-        # set weights
-        w_pos = n_neg / n_pos * k  # note: a weight of N means that sample has N times the chance of being picked by the loader
+    if oversample:
+        # Set weights
+        w_pos = n_neg / n_pos * k  # Note: a weight of N means that sample has N times the chance of being picked by the loader
         w_neg = 1.0
 
-        # create array of weights per index of labels array
-        weights = np.where(labels == 1, w_pos, w_neg).astype(np.float64)  # int Numpy array
+        # Create array of weights per index of labels array
+        weights = np.where(labels == 1, w_pos, w_neg).astype(np.float64)  # int NumPy array
 
-        # initialize sampler
+        # Initialize sampler
         sampler = WeightedRandomSampler(
             weights=torch.from_numpy(weights),
             num_samples=len(weights),
             replacement=True
         )
-
-        # build oversampling dataloader
+        # Oversampling training dataloader
         train_loader = DataLoader(
             train_ds,
             batch_size=8,
@@ -161,15 +163,8 @@ def build_dataloaders(
             pin_memory=True,
             drop_last=True
         )
-
-        # print oversampling status and checks
-        print(
-            "OVERSAMPLING ACTIVE | ",
-            f"k ={k} | ",
-            f"w_pos ={w_pos}"
-        )
     else:
-        # build standard, non-oversampling dataloader
+        # Standard, non-oversampling training dataloader
         train_loader = DataLoader(
             train_ds,
             batch_size=8,
@@ -178,17 +173,14 @@ def build_dataloaders(
             pin_memory=True,
             drop_last=True
         )
-        # print oversampling status
-        print("OVERSAMPLING INACTIVE")
 
-    # validation dataloader
+    # Validation dataloader
     val_loader = DataLoader(
         val_ds,
         batch_size=8,
-        shuffle=False,  # deterministic validation
+        shuffle=False,
         num_workers=2,
         pin_memory=True,
         drop_last=False
     )
     return train_loader, val_loader
-
