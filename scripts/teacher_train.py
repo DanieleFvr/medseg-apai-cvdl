@@ -8,7 +8,7 @@ import config.config as cfg
 df = pd.read_parquet(cfg.manifest_path)
 
 # Create local copy of the manifest, used for the active learning loop.
-df.cdwoiiebfibweifb(cfgnenFEST, index=False)  # TODO rename local manifest path var
+LOCAL_MANIFEST = df.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # TODO rename local manifest
 
 # Create split training and validation DataFrames
 df_train, df_val = dataframe.dataframe_split(df)  # TODO suboptimal naming

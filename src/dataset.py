@@ -1,9 +1,9 @@
 import os
+from pathlib import Path
 
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from pathlib import Path
 from torch.utils.data import DataLoader, WeightedRandomSampler
 import pandas as pd
 
@@ -122,8 +122,8 @@ def build_dataloaders(
     This function builds the training and validation dataloaders.
 
     Args:
-        val_ds (torch.utils.data.Dataset): the validation dataset.
         train_ds (torch.utils.data.Dataset): the training dataset.
+        val_ds (torch.utils.data.Dataset): the validation dataset.
         df_train (pd.DataFrame): dataframe containing training data.
         oversample (bool): whether to oversample the labels.
         k (float): the oversampling multiplier used by WeightedRandomSampler.

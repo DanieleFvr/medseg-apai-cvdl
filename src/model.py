@@ -2,6 +2,7 @@ import torch.nn as nn
 
 from layers import double_convolution
 
+
 class UNet(nn.Module):  # TODO refine class description
     """
     This class defines the student model architecture.

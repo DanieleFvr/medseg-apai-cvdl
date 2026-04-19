@@ -36,7 +36,16 @@ def dice_loss(logits, gt, eps=1e-6) -> torch.Tensor:
 
 class FocalBCEDiceLoss(nn.Module):
     """
-    This function defines focal bce dice loss.
+    This function defines focal bce dice loss, whose computation needs dice_loss().
+
+    Args:
+        dice_weight (float): dice weight parameter.
+        gamma (float): gamma parameter.
+        alpha (float): alpha parameter.
+        neg_ohem_weight (float): neg ohem weight parameter.
+        neg_topk (int): top k negative samples.
+    Returns:
+
     """
     def __init__(self, dice_weight=1.0, alpha=0.25, gamma=2.0, neg_ohem_weight=0.05, neg_topk=1024):
         super().__init__()

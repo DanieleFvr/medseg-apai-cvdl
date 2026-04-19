@@ -1,5 +1,4 @@
 import pandas as pd
-from pathlib import Path
 
 
 def dataframe_split(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
