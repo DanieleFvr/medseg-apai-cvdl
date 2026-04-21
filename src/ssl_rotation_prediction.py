@@ -21,27 +21,24 @@ def make_ssl_batch(
     B, C, H, W = x.shape # TODO variables should be lowercase
     x_ssl_list = []
     y_ssl_list = []
-
-    # possibili rotazioni in multipli di 90°
-    angles = [0, 90]
-    ks = [0, 1]  # corrispondente k per torch.rot90
+    ks = [0, 1]  # Corresponding k for torch.rot90
 
     for i in range(B):
         img = x[i]  # (C,H,W)
         img = center_crop(img)  # center crop
 
-        # scegli random una delle 4 rotazioni  # TODO comments and variable names account for 4 rotations, expected 2
+        # Choose one out of 2 rotations, randomly  # TODO comments and variable names account for 4 rotations, expected 2
         idx = torch.randint(0, 2, (1,)).item()
         k = ks[idx]
 
-        # rotazione di k*90° senza interpolazione
+        # Rotation of k*90 degrees without interpolation
         img_rot = torch.rot90(img, k=k, dims=(1, 2))
 
         x_ssl_list.append(img_rot)
         y_ssl_list.append(idx)
 
     x_ssl = torch.stack(x_ssl_list, dim=0)  # (B,C,h,w)
-    y_ssl = torch.tensor(y_ssl_list, dtype=torch.long, device=x.device)  # (B,)
+    y_ssl = torch.tensor(y_ssl_list, dtype=torch.long, device=x.device)  # (B,)  # TODO add device to args
 
     return x_ssl, y_ssl
 

@@ -108,11 +108,11 @@ def validate_one_epoch(model, loader, criterion, device, threshold=0.5, eps=1e-6
         if is_neg.any():
             preds_neg = preds[is_neg]
 
-            # ----------------- FPIR ON NEGATIVES ONLY
+            # Compute FPIR, on negatives only
             neg_total += is_neg.sum().item()  # Add number of negatives samples in the batch to bookkeeping
             neg_fp += (preds_neg.sum(dim=(1, 2, 3)) > 0).sum().item()  # Add number of false positives to bookkeeping
 
-            # ----------------- FP/HW ON NEGATIVES ONLY
+            # Compute FP/HW, on negatives only
             neg_frac = preds_neg.flatten(start_dim=1)  # Flatten (B_neg, H*W)
             neg_frac = neg_frac.mean(dim=1)  # Mean over H*W, total pixels (B_neg,)
             neg_fphw_sum += neg_frac.sum().item()  # Add to bookkeeping

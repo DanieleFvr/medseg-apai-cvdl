@@ -1,6 +1,7 @@
 from pathlib import Path
 
-import torchvision.transforms as T
+import torch
+
 
 # Paths
 manifest_path: str | Path = Path(f"/content/drive/MyDrive/APAI_CVDL_shared/project/meta/manifest.parquet")
@@ -13,7 +14,7 @@ oversample: bool = True  # Oversampling flag
 k: float  = 0.5  # Oversampling multiplier
 
 # Rotation prediction SSL
-center_crop = T.CenterCrop(size=384) # TODO find data type
+center_crop_size: int = 384
 
 # Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -24,3 +25,15 @@ batch_size: int = 8
 
 # Teacher model
 num_groups: int = 8  # Number of groups for GroupNorm
+
+# Teacher model criterion parameters
+dice_weight: float = 1.0
+alpha: float = 0.25
+gamma: float = 2.0
+neg_ohem_weight: float = 0.05
+neg_topk: int = 1024
+
+# Teacher training hyperparameters
+lr: float = 2.5e-5  # Starting LR
+ssl_loss_weight: float = 0.1
+
