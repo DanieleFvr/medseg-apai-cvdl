@@ -36,4 +36,11 @@ neg_topk: int = 1024
 # Teacher training hyperparameters
 lr: float = 2.5e-5  # Starting LR
 ssl_loss_weight: float = 0.1
+num_epochs: int = 20
+ROUNDS = 5  # Number of AL rounds
+K = 3000  # Number of samples for the first AL round
+k_after_first_round = 200  # Number of samples selected on every round after the first
+ohem_activation_epoch = 4
 
+# Validation config values
+thresholds = [0.25, 0.5, 0.7]
