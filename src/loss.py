@@ -47,7 +47,7 @@ class FocalBCEDiceLoss(nn.Module):
     Returns:
 
     """
-    def __init__(self, dice_weight=1.0, alpha=0.25, gamma=2.0, neg_ohem_weight=0.05, neg_topk=1024):
+    def __init__(self, dice_weight, alpha, gamma, neg_ohem_weight, neg_topk):
         super().__init__()
         self.dice_weight = dice_weight
         self.alpha = alpha

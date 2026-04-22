@@ -39,7 +39,7 @@ def train_one_epoch(model, loader, criterion, criterion_ssl, ssl_loss_weight, op
 
 
 @torch.no_grad()
-def validate_one_epoch(model, loader, criterion, device, threshold=0.5, eps=1e-6):
+def validate_one_epoch(model, loader, criterion, device, threshold, eps=1e-6):
     """
     This function computes one epoch of validation for the teacher model.
 
@@ -131,3 +131,67 @@ def validate_one_epoch(model, loader, criterion, device, threshold=0.5, eps=1e-6
         "val_fpir": val_fpir,
         "val_fphw": val_fphw
     }
+
+
+def ohem_warmup_schedule(
+        round_id: int,
+        epoch: int,
+        activation_epoch: int,
+) -> float:
+    """
+    This is a helper function that sets a schedule for neg_ohem_weight.
+    """
+    if round_id == 0:  # TODO maybe get rid of this
+        if epoch < activation_epoch:
+            return 0.0
+        elif epoch < (activation_epoch + 2):
+            return 0.01
+        elif epoch < (activation_epoch + 4):
+            return 0.035
+        else:
+            return 0.05
+    else:
+        return 0.05
+
+
+def print_metrics(
+        threshold: float,
+        thresholds: list,
+        val_results: dict,
+        val_losses: list,
+        train_loss: float,
+        epoch: int,
+        num_epochs: int,
+        optimizer,
+        criterion,
+) -> None:
+    """
+    This functions prints useful information and metrics for every epoch in the console.
+
+    Args:
+
+    Returns:
+        None, it prints only.
+    """
+    if threshold == thresholds[0]:
+        val_loss = val_results["val_loss"]  # Get the validation loss for the current epoch
+        val_losses.append(val_loss)  # Append loss
+
+        # Print epoch number and losses (printed once every epoch)
+        print(
+            "\n-------\n"
+            f"EPOCH {epoch + 1}/{num_epochs} | "
+            f"TRAIN LOSS={train_loss:.4f} | "
+            f"VAL LOSS={val_results['val_loss']:.4f} | "
+            f"LR={optimizer.param_groups[0]['lr']} | "  # TODO where does this come from?
+            f"OHEM WEIGHT={criterion.neg_ohem_weight}"
+        )
+
+    # Print metrics (printed once per threshold value every epoch)  # TODO improve comment, unclear
+    print(
+        f"THRESHOLD={threshold}\n"
+        f"DSC={val_results['val_dsc']:.4f} | "
+        f"IoU={val_results['val_iou']:.4f} | "
+        f"FPIR={val_results['val_fpir']:.4f} | "
+        f"FPHW={val_results['val_fphw']:.6f}"
+    )
