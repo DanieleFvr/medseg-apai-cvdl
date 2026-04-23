@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from layers import double_convolution
+from src.layers import double_convolution
 
 
 def make_ssl_batch(
@@ -25,7 +25,7 @@ def make_ssl_batch(
 
     for i in range(B):
         img = x[i]  # (C,H,W)
-        img = center_crop(img)  # center crop
+        img = center_crop(img)  # Center crop
 
         # Choose one out of 2 rotations, randomly  # TODO comments and variable names account for 4 rotations, expected 2
         idx = torch.randint(0, 2, (1,)).item()

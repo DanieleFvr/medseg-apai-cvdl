@@ -6,7 +6,7 @@ import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-from dataset import PneumoDatasetForAL
+from src.dataset import PneumoDatasetForAL
 
 
 def entropy_score_from_logits(logits: torch.Tensor) -> torch.Tensor:  # TODO fix docstring, too generic
@@ -26,7 +26,7 @@ def entropy_score_from_logits(logits: torch.Tensor) -> torch.Tensor:  # TODO fix
 @torch.no_grad()
 def select_next_round_uncertainty(
         model,
-        local_manifest,
+        local_manifest: Path | str,
         round_id: int,
         device,
         K: int,
@@ -36,10 +36,10 @@ def select_next_round_uncertainty(
 
     Args:
         model (torch.nn.Module): the model used for teacher training.
-        local_manifest (PneumoDatasetForAL): the local dataset used for teacher training.  # TODO sure? And fix type
+        local_manifest (Path | str): the local dataset used for teacher training.  # TODO sure? And fix type
         round_id (int): the round id of the current active learning round, used only for manifest logging.
         device (torch.device): the device used for training.
-        K (int) = how many samples are to be selected each.
+        K (int): how many samples are to be selected each.
         batch_size (int): the batch size used for training each round.
     Returns:
         tuple[pd.DataFrame, list] | None:

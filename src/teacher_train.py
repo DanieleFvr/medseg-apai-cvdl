@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 
-from ssl_rotation_prediction import make_ssl_batch
+from src.ssl_rotation_prediction import make_ssl_batch
 
 
 def train_one_epoch(model, loader, criterion, criterion_ssl, ssl_loss_weight, optimizer, device, center_crop):
