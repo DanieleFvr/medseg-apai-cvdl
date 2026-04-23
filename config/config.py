@@ -5,7 +5,7 @@ import torch
 
 # Paths
 manifest_path: str | Path = Path(f"/content/drive/MyDrive/APAI_CVDL_shared/project/meta/manifest.parquet")
-LOCAL_ROOT: str | Path = Path("/content/project_data/data/pre/img/")  # TODO should be lowercase
+LOCAL_ROOT: str | Path = Path("/content/data/pre/img/")  # TODO should be lowercase
 ROOT: str | Path = Path("/content/")  # TODO rename, not descriptive enough, and should be lowercase
 LOCAL_MANIFEST: str | Path = Path(f"{ROOT}/manifest_local.parquet")  # TODO should be lowercase
 

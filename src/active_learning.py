@@ -56,7 +56,7 @@ def select_next_round_uncertainty(
         return None
 
     pool_indices = pool.index.to_numpy()
-    ds_u = PneumoDatasetForAL(local_manifest, pool_indices, project_root=Path("/content/project_data"))  # TODO this should be in config
+    ds_u = PneumoDatasetForAL(local_manifest, pool_indices, project_root=Path("/content"))  # TODO this should be in config
     loader_u = DataLoader(ds_u, batch_size=batch_size, shuffle=False)
     model = model.to(device)
     model.eval()

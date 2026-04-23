@@ -78,12 +78,12 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
         LOCAL_MANIFEST,
         split="train",
         status="L",
-        project_root=Path("project_data"),  # TODO this should be in config
+        project_root=Path("/content"),  # TODO this should be in config
     )
     val_ds = data.PneumoDatasetForAL(
         LOCAL_MANIFEST,
         split="val",
-        project_root=Path("project_data"),
+        project_root=Path("/content"),
     )
     # Build training and validation DataLoaders
     train_loader = DataLoader(train_L_ds, batch_size=8, shuffle=True)

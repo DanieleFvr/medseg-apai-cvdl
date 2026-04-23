@@ -55,7 +55,14 @@ class BaselineDataset(Dataset):  # TODO refactor class name to something else: t
 
 
 class PneumoDatasetForAL(Dataset):
-    def __init__(self, manifest_path, indices=None, status=None, split="train", project_root=None):
+    def __init__(
+            self,
+            manifest_path,
+            indices=None,
+            status=None,
+            split="train",
+            project_root=None
+    ):
         df_full = pd.read_parquet(manifest_path)
         self.split = split
         self.project_root = Path(project_root) if project_root is not None else None
@@ -84,7 +91,7 @@ class PneumoDatasetForAL(Dataset):
             return p
         if self.project_root is None:
             return p
-        return self.project_root / p
+        return self.project_root / p  # TODO what is p? There's another variable in the project with the same name, change it
 
     def __getitem__(self, idx):
         # idx is always a 0-based positional index in the current self.df
