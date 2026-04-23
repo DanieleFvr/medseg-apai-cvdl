@@ -1,6 +1,8 @@
+import torch
 import torch.nn as nn
 
 from src.layers import double_convolution
+from src.ssl_rotation_prediction import SSLHead
 
 
 class UNet(nn.Module):  # TODO refine class description
@@ -8,65 +10,74 @@ class UNet(nn.Module):  # TODO refine class description
     This class defines the student model architecture.
     """
 
-    def __init__(self, num_classes):
+    def __init__(
+            self,
+            num_groups,
+    ):
         super(UNet, self).__init__()
-        self.sslHead = SSLHead(1024)
-        # define pooling layer
-        self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.num_classes_seg = 1
+        self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)  # Define pooling layer
+        self.sslHead = SSLHead(  # TODO rename sslHead --> ssl_head
+            in_channels=1024,  # TODO hardcoded like this is not right
+            num_groups=num_groups,
+        )
 
-        # define double convolutions for encoder
-        self.down_convolution_1 = double_convolution(1, 64)  # in encoder stage 1
-        self.down_convolution_2 = double_convolution(64, 128)  # in encoder stage 2
-        self.down_convolution_3 = double_convolution(128, 256)  # in encoder stage 3
-        self.down_convolution_4 = double_convolution(256, 512)  # in encoder stage 4
-        self.down_convolution_5 = double_convolution(512, 1024)  # in bottleneck
+        # Define double convolutions for encoder
+        self.down_convolution_1 = double_convolution(1, 64)  # In encoder stage 1  # TODO add num_groups parameter
+        self.down_convolution_2 = double_convolution(64, 128)  # In encoder stage 2
+        self.down_convolution_3 = double_convolution(128, 256)  # In encoder stage 3
+        self.down_convolution_4 = double_convolution(256, 512)  # In encoder stage 4
+        self.down_convolution_5 = double_convolution(512, 1024)  # In bottleneck
 
         # ----------------- DEFINE DECODER
-        # in decoder stage 1
+
+        # In decoder stage 1
         self.up_transpose_1 = nn.ConvTranspose2d(
             in_channels=1024,
             out_channels=512,
             kernel_size=2,
-            stride=2
+            stride=2,
         )
         self.up_convolution_1 = double_convolution(1024, 512)
 
-        # in decoder stage 2
+        # In decoder stage 2
         self.up_transpose_2 = nn.ConvTranspose2d(
             in_channels=512,
             out_channels=256,
             kernel_size=2,
-            stride=2
+            stride=2,
         )
         self.up_convolution_2 = double_convolution(512, 256)
 
-        # in decoder stage 3
+        # In decoder stage 3
         self.up_transpose_3 = nn.ConvTranspose2d(
             in_channels=256,
             out_channels=128,
             kernel_size=2,
-            stride=2
+            stride=2,
         )
         self.up_convolution_3 = double_convolution(256, 128)
 
-        # in decoder stage 4
+        # In decoder stage 4
         self.up_transpose_4 = nn.ConvTranspose2d(
             in_channels=128,
             out_channels=64,
             kernel_size=2,
-            stride=2
+            stride=2,
         )
         self.up_convolution_4 = double_convolution(128, 64)
 
         # ----------------- DEFINE OUTPUT
+
         self.out = nn.Conv2d(
             in_channels=64,
-            out_channels=num_classes,
-            kernel_size=1
+            out_channels=self.num_classes_seg,
+            kernel_size=1,
         )
 
     def forward(self, x, is_seg):
         # ----------------- ENCODER
+
         down_1 = self.down_convolution_1(x)
         down_2 = self.max_pool2d(down_1)
 
@@ -82,6 +93,7 @@ class UNet(nn.Module):  # TODO refine class description
         down_9 = self.down_convolution_5(down_8)
 
         # ----------------- DECODER
+
         if (is_seg):  # If the path is segmentation we go through decoder
             up_1 = self.up_transpose_1(down_9)
             x = self.up_convolution_1(torch.cat([down_7, up_1], 1))
@@ -96,7 +108,9 @@ class UNet(nn.Module):  # TODO refine class description
             x = self.up_convolution_4(torch.cat([down_1, up_4], 1))
 
             # ----------------- OUTPUT
+
             out = self.out(x)
+
             return out
-        else:  # else we send images to sslHead after the encoder
+        else:  # Else we send images to sslHead after the encoder
             return self.sslHead(down_9)

@@ -23,7 +23,7 @@ def train_one_epoch(model, loader, criterion, criterion_ssl, ssl_loss_weight, op
         labels_ssl = labels_ssl.to(device)
         optimizer.zero_grad()
         logits = model(imgs, is_seg=True)  # Forward pass (segmentation)
-        logits_ssl = model(imgs_ssl, is_seg=False)  # Forward pass (ssl)
+        logits_ssl = model(imgs_ssl, is_seg=False)  # Forward pass (SSL)
 
         # Compute loss
         loss_SEG = criterion(logits, masks)  # TODO inconsistent naming style, lowercase

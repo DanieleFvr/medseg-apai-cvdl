@@ -51,15 +51,15 @@ class SSLHead(nn.Module):  # TODO describe what this class does
     def __init__(
             self,
             in_channels,
-            num_groups,  # TODO import from config when called
-            num_classes=2
+            num_groups,
     ):
         super().__init__()
+        self.num_classes_ssl = 2
         self.conv = double_convolution(in_channels, 32, num_groups)
         self.pool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Linear(32, num_classes)
+        self.fc = nn.Linear(32, self.num_classes_ssl)
 
     def forward(self, feat):
         x = self.conv(feat)
         x = self.pool(x).flatten(1)  # (B,32)
-        return self.fc(x)  # (B,num_classes)
+        return self.fc(x)  # (B,self.num_classes_ssl)

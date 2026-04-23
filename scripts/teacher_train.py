@@ -47,7 +47,7 @@ criterion = loss.FocalBCEDiceLoss(
 ).to(cfg.device)
 criterion_ssl = nn.CrossEntropyLoss().to(cfg.device)  # Initialize SSL criterion instance
 
-model = model.UNet(num_classes=1).to(cfg.device)  # Initialize model
+model = model.UNet(num_groups=cfg.num_groups).to(cfg.device)  # Initialize model
 
 # Initialize optimizer
 optimizer = torch.optim.Adam(

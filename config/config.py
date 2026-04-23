@@ -38,7 +38,7 @@ lr: float = 2.5e-5  # Starting LR
 ssl_loss_weight: float = 0.1
 num_epochs: int = 20
 ROUNDS: int = 5  # Number of AL rounds
-K: int = 3000  # Number of samples for the first AL round
+K: int = 3000  # Number of samples for the first AL round  # TODO redeclared from above!
 k_after_first_round: int = 200  # Number of samples selected on every round after the first
 ohem_activation_epoch: int = 4
 
