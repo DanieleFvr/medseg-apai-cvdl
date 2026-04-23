@@ -140,7 +140,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
         local_manifest=cfg.LOCAL_MANIFEST,
         round_id=ROUND_ID,
         device=cfg.device,
-        K=K,
+        K=cfg.K,
         batch_size=8,
     ) # TODO shouldn't this too be at the beginning of the for loop? (only one)
     df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)

@@ -39,7 +39,7 @@ def select_next_round_uncertainty(
         local_manifest (Path | str): the local dataset used for teacher training.  # TODO sure? And fix type
         round_id (int): the round id of the current active learning round, used only for manifest logging.
         device (torch.device): the device used for training.
-        K (int): how many samples are to be selected each.
+        K (int): how many samples are to be selected each round.
         batch_size (int): the batch size used for training each round.
     Returns:
         tuple[pd.DataFrame, list] | None:
@@ -56,7 +56,7 @@ def select_next_round_uncertainty(
         return None
 
     pool_indices = pool.index.to_numpy()
-    ds_u = PneumoDatasetForAL(local_manifest, pool_indices, project_root=Path("/content/project_data"))
+    ds_u = PneumoDatasetForAL(local_manifest, pool_indices, project_root=Path("/content/project_data"))  # TODO this should be in config
     loader_u = DataLoader(ds_u, batch_size=batch_size, shuffle=False)
     model = model.to(device)
     model.eval()
