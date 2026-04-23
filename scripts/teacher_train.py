@@ -6,7 +6,7 @@ from torchvision import transforms as T
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from src import dataframe, dataset, active_learning, loss, model, teacher_train
+from src import data, active_learning, loss, model, teacher_train
 from config import config as cfg
 
 
@@ -17,17 +17,17 @@ df = pd.read_parquet(cfg.manifest_path)  # TODO unused?
 LOCAL_MANIFEST = df.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # TODO unused?
 
 # Create split training and validation DataFrames
-df_train, df_val = dataframe.dataframe_split(df=df)  # TODO unused
+df_train, df_val = data.dataframe_split(df=df)  # TODO unused
 
 # Create split training and validation Dataset instances
-train_ds, val_ds = dataset.build_datasets(
+train_ds, val_ds = data.build_datasets(
     df_train=df_train,
     df_val=df_val,
     ROOT=cfg.ROOT,
 )  # TODO unused, test and fix
 
 # Build training and validation dataloaders, given config parameters
-train_loader, val_loader = dataset.build_dataloaders(
+train_loader, val_loader = data.build_dataloaders(
     train_ds=train_ds,
     val_ds=val_ds,
     df_train=df_train,
@@ -74,13 +74,13 @@ df_new.to_parquet(LOCAL_MANIFEST, index=False)  # Write the manifest to select t
 
 for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
     # Build training and validation Datasets
-    train_L_ds = dataset.PneumoDatasetForAL(
+    train_L_ds = data.PneumoDatasetForAL(
         LOCAL_MANIFEST,
         split="train",
         status="L",
         project_root=Path("project_data"),  # TODO this should be in config
     )
-    val_ds = dataset.PneumoDatasetForAL(
+    val_ds = data.PneumoDatasetForAL(
         LOCAL_MANIFEST,
         split="val",
         project_root=Path("project_data"),

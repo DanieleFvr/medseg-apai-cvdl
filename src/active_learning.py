@@ -6,7 +6,7 @@ import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-from src.dataset import PneumoDatasetForAL
+from src.data import PneumoDatasetForAL
 
 
 def entropy_score_from_logits(logits: torch.Tensor) -> torch.Tensor:  # TODO fix docstring, too generic

@@ -8,6 +8,21 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 import pandas as pd
 
 
+def dataframe_split(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    This function splits a dataframe into two: one for training and one for validation, based on
+    "split" col value.
+
+    Args:
+        df (pd.DataFrame): the dataframe to be split.
+    Returns:
+        tuple[pd.DataFrame, pd.DataFrame]: the training and validation dataframes.
+    """
+    df_train = df[df["split"] == "train"].copy()
+    df_val = df[df["split"] == "val"].copy()
+    return df_train, df_val
+
+
 # Create dataset class
 class BaselineDataset(Dataset):  # TODO refactor class name to something else: this isn't just for the baseline
     def __init__(self, df, root, img_col="img_path", mask_col="mask_path"):
