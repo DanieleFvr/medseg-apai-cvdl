@@ -23,11 +23,11 @@ class UNet(nn.Module):  # TODO refine class description
         )
 
         # Define double convolutions for encoder
-        self.down_convolution_1 = double_convolution(1, 64)  # In encoder stage 1  # TODO add num_groups parameter
-        self.down_convolution_2 = double_convolution(64, 128)  # In encoder stage 2
-        self.down_convolution_3 = double_convolution(128, 256)  # In encoder stage 3
-        self.down_convolution_4 = double_convolution(256, 512)  # In encoder stage 4
-        self.down_convolution_5 = double_convolution(512, 1024)  # In bottleneck
+        self.down_convolution_1 = double_convolution(1, 64, num_groups)  # In encoder stage 1
+        self.down_convolution_2 = double_convolution(64, 128, num_groups)  # In encoder stage 2
+        self.down_convolution_3 = double_convolution(128, 256, num_groups)  # In encoder stage 3
+        self.down_convolution_4 = double_convolution(256, 512, num_groups)  # In encoder stage 4
+        self.down_convolution_5 = double_convolution(512, 1024, num_groups)  # In bottleneck
 
         # ----------------- DEFINE DECODER
 
@@ -38,7 +38,7 @@ class UNet(nn.Module):  # TODO refine class description
             kernel_size=2,
             stride=2,
         )
-        self.up_convolution_1 = double_convolution(1024, 512)
+        self.up_convolution_1 = double_convolution(1024, 512, num_groups)
 
         # In decoder stage 2
         self.up_transpose_2 = nn.ConvTranspose2d(
@@ -47,7 +47,7 @@ class UNet(nn.Module):  # TODO refine class description
             kernel_size=2,
             stride=2,
         )
-        self.up_convolution_2 = double_convolution(512, 256)
+        self.up_convolution_2 = double_convolution(512, 256, num_groups)
 
         # In decoder stage 3
         self.up_transpose_3 = nn.ConvTranspose2d(
@@ -56,7 +56,7 @@ class UNet(nn.Module):  # TODO refine class description
             kernel_size=2,
             stride=2,
         )
-        self.up_convolution_3 = double_convolution(256, 128)
+        self.up_convolution_3 = double_convolution(256, 128, num_groups)
 
         # In decoder stage 4
         self.up_transpose_4 = nn.ConvTranspose2d(
@@ -65,7 +65,7 @@ class UNet(nn.Module):  # TODO refine class description
             kernel_size=2,
             stride=2,
         )
-        self.up_convolution_4 = double_convolution(128, 64)
+        self.up_convolution_4 = double_convolution(128, 64, num_groups)
 
         # ----------------- DEFINE OUTPUT
 

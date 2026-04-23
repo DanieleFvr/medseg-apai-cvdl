@@ -4,7 +4,7 @@ import torch.nn as nn
 def double_convolution(
         in_channels,
         out_channels,
-        num_groups
+        num_groups,
 ) -> nn.Sequential:
     """
     This function creates two consecutive convolution layers.
@@ -16,7 +16,7 @@ def double_convolution(
     Returns:
         conv_op (nn.sequential): two convolution layers.
     """
-    # for GroupNorm, ensure num_groups divides out_channels
+    # For GroupNorm, ensure num_groups divides out_channels
     g = min(num_groups, out_channels)
     while out_channels % g != 0:
         g -= 1
