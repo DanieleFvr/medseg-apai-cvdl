@@ -14,7 +14,7 @@ from config import config as cfg
 df = pd.read_parquet(cfg.manifest_path)  # TODO unused?
 
 # Create local copy of the manifest, used for the active learning loop.
-LOCAL_MANIFEST = df.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # TODO unused?
+df.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # TODO unused?
 
 # Create split training and validation DataFrames
 df_train, df_val = data.dataframe_split(df=df)  # TODO unused
@@ -70,18 +70,18 @@ df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
     batch_size=8,
 )  # TODO shouldn't this be at the beginning of the for loop? Test and maybe move it
 
-df_new.to_parquet(LOCAL_MANIFEST, index=False)  # Write the manifest to select them  #TODO fix comment
+df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # Write the manifest to select them  #TODO fix comment
 
 for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
     # Build training and validation Datasets
     train_L_ds = data.PneumoDatasetForAL(
-        LOCAL_MANIFEST,
+        cfg.LOCAL_MANIFEST,
         split="train",
         status="L",
         project_root=Path("/content"),  # TODO this should be in config
     )
     val_ds = data.PneumoDatasetForAL(
-        LOCAL_MANIFEST,
+        cfg.LOCAL_MANIFEST,
         split="val",
         project_root=Path("/content"),
     )
@@ -135,12 +135,13 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
     K = cfg.k_after_first_round
 
     ROUND_ID += 1
-    df_new, selected_image_ids = active_learning.select_next_round_uncertainty(  # TODO is selected_image_ids never used?
+    df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
+        # TODO is selected_image_ids never used?
         model=model,
         local_manifest=cfg.LOCAL_MANIFEST,
         round_id=ROUND_ID,
         device=cfg.device,
         K=cfg.K,
         batch_size=8,
-    ) # TODO shouldn't this too be at the beginning of the for loop? (only one)
+    )  # TODO shouldn't this too be at the beginning of the for loop? (only one)
     df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)
