@@ -5,16 +5,16 @@ import torch
 from torchvision import transforms as T
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from datetime import datetime
 
-import utils
-from src import data, active_learning, loss, model, teacher_train
+from src import data, active_learning, loss, model, teacher_train, utils
 from config import config as cfg
 
 
-# Load the project manifest into a DataFrame.
+# Load the project manifest into a DataFrame
 df = pd.read_parquet(cfg.manifest_path)  # TODO unused?
 
-# Create local copy of the manifest, used for the active learning loop.
+# Create local copy of the manifest, used for the active learning loop
 df.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # TODO unused?
 
 # Create split training and validation DataFrames
@@ -72,6 +72,13 @@ df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
 )  # TODO shouldn't this be at the beginning of the for loop? Test and maybe move it
 
 df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # Write the manifest to select them  #TODO fix comment
+
+# Make checkpoint directory if not already present
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+ckpt_path = Path(cfg.ckpt_dir / f"{timestamp}_run")
+ckpt_path.mkdir(parents=True, exist_ok=True)
+
+best_val_loss: float = float("inf")
 
 for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
     # Build training and validation Datasets
@@ -132,6 +139,17 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                 optimizer=optimizer,
                 criterion=criterion,
             )
+
+        # Save chekpoints
+        best_val_loss = utils.save_checkpoint(
+            ckpt_path=ckpt_path,
+            epoch=epoch,
+            round_id=r,
+            model=model,
+            optimizer=optimizer,
+            best_val_loss=best_val_loss,
+            val_results=val_results,
+        )
 
     ROUND_ID += 1
     df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
