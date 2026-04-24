@@ -57,7 +57,7 @@ def save_checkpoint(
 ):
     checkpoint = {
         "epoch": epoch + 1,
-        "round_id": round_id,
+        "round_id": round_id + 1,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "val_metrics": val_results,

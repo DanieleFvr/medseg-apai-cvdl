@@ -60,7 +60,7 @@ train_losses: list[float] = []
 val_losses: list[float] = []
 
 # Calculate indexes for the very first round of AL
-ROUND_ID = 1  # First round
+ROUND_ID: int = 0  # First round
 # Rewrite the local manifest to account for the first round's sample selections
 df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
     model=model,
