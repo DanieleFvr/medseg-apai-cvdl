@@ -39,7 +39,7 @@ def select_next_round_uncertainty(
         local_manifest (Path | str): the local dataset used for teacher training.  # TODO sure? And fix type
         round_id (int): the round id of the current active learning round, used only for manifest logging.
         device (torch.device): the device used for training.
-        K (int): how many samples are to be selected each round.
+        K (int): how many samples need to be selected.
         batch_size (int): the batch size used for training each round.
     Returns:
         tuple[pd.DataFrame, list] | None:

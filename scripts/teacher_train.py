@@ -132,8 +132,6 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                 criterion=criterion,
             )
 
-    K = cfg.k_after_first_round
-
     ROUND_ID += 1
     df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
         # TODO is selected_image_ids never used?
@@ -141,7 +139,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
         local_manifest=cfg.LOCAL_MANIFEST,
         round_id=ROUND_ID,
         device=cfg.device,
-        K=cfg.K,
+        K=cfg.k_after_first_round,
         batch_size=8,
     )  # TODO shouldn't this too be at the beginning of the for loop? (only one)
     df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)

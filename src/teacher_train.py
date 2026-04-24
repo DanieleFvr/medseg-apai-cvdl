@@ -4,7 +4,16 @@ from tqdm import tqdm
 from src.ssl_rotation_prediction import make_ssl_batch
 
 
-def train_one_epoch(model, loader, criterion, criterion_ssl, ssl_loss_weight, optimizer, device, center_crop):
+def train_one_epoch(
+        model,
+        loader,
+        criterion,
+        criterion_ssl,
+        ssl_loss_weight,
+        optimizer,
+        device,
+        center_crop,
+):
     """
     This function trains the teacher model for one epoch.
 
@@ -39,7 +48,14 @@ def train_one_epoch(model, loader, criterion, criterion_ssl, ssl_loss_weight, op
 
 
 @torch.no_grad()
-def validate_one_epoch(model, loader, criterion, device, threshold, eps=1e-6):
+def validate_one_epoch(
+        model,
+        loader,
+        criterion,
+        device,
+        threshold,
+        eps=1e-6,
+):
     """
     This function computes one epoch of validation for the teacher model.
 
