@@ -6,6 +6,7 @@ from torchvision import transforms as T
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+import utils
 from src import data, active_learning, loss, model, teacher_train
 from config import config as cfg
 
@@ -120,7 +121,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                 threshold=t,
             )
             # Print metrics to console every epoch
-            teacher_train.print_metrics(
+            utils.print_val_metrics(
                 threshold=t,
                 thresholds=cfg.thresholds,
                 val_results=val_results,
