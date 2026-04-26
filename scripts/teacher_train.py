@@ -53,7 +53,7 @@ model = model.TeacherUNet(num_groups=cfg.num_groups).to(cfg.device)  # Initializ
 # Initialize optimizer
 optimizer = optimizers.build_adam_optimizer(
     model=model,
-    lr=cfg.lr,
+    lr=cfg.lr_teacher,
 )
 
 train_losses: list[float] = []
