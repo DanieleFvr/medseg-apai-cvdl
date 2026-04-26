@@ -27,7 +27,7 @@ train_ds, val_ds = data.build_datasets(
     ROOT=cfg.ROOT,
 )  # TODO unused, test and fix
 
-# Build training and validation dataloaders, given config parameters
+# Build training and validation DataLoaders
 train_loader, val_loader = data.build_dataloaders(
     train_ds=train_ds,
     val_ds=val_ds,

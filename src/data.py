@@ -124,7 +124,7 @@ def build_datasets(
     Args:
         df_train (pd.DataFrame): dataframe containing training data.
         df_val (pd.DataFrame): dataframe containing validation data.
-        ROOT (string | Path): path to ??
+        ROOT (string | Path): path to ??  # TODO fix this
     Returns:
         tuple[torch.utils.data.Dataset, torch.utils.data.Dataset]: the training and validation datasets.
     """

@@ -145,7 +145,7 @@ def validate_teacher_one_epoch(
         "val_dsc": val_dsc,
         "val_iou": val_iou,
         "val_fpir": val_fpir,
-        "val_fphw": val_fphw
+        "val_fphw": val_fphw,
     }
 
 
@@ -291,5 +291,5 @@ def validate_student_one_epoch(
         "val_dsc": val_dsc,
         "val_iou": val_iou,
         "val_fpir": val_fpir,
-        "val_fphw": val_fphw
+        "val_fphw": val_fphw,
     }
