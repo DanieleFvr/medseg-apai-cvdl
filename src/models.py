@@ -15,7 +15,7 @@ class TeacherUNet(nn.Module):  # TODO refine class description
             num_groups,
     ):
         super(TeacherUNet, self).__init__()
-        self.num_classes_seg = 1
+        self.num_classes = 1
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)  # Define pooling layer
         self.sslHead = SSLHead(  # TODO rename sslHead --> ssl_head
             in_channels=1024,  # TODO hardcoded like this is not right
@@ -71,7 +71,7 @@ class TeacherUNet(nn.Module):  # TODO refine class description
 
         self.out = nn.Conv2d(
             in_channels=64,
-            out_channels=self.num_classes_seg,
+            out_channels=self.num_classes,
             kernel_size=1,
         )
 
@@ -94,7 +94,7 @@ class TeacherUNet(nn.Module):  # TODO refine class description
 
         # ----------------- DECODER
 
-        if (is_seg):  # If the path is segmentation we go through decoder
+        if is_seg:  # If the path is segmentation we go through decoder
             up_1 = self.up_transpose_1(down_9)
             x = self.up_convolution_1(torch.cat([down_7, up_1], 1))
 
@@ -117,17 +117,21 @@ class TeacherUNet(nn.Module):  # TODO refine class description
 
 
 class StudentUNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(
+            self,
+            num_groups,
+    ):
         super().__init__()
+        self.num_classes = 1
 
         # define encoder convolutions
-        self.down_convolution_1 = double_convolution(1, 32)
-        self.down_convolution_2 = double_convolution(32, 64)
-        self.down_convolution_3 = double_convolution(64, 128)
-        self.down_convolution_4 = double_convolution(128, 256)
+        self.down_convolution_1 = double_convolution(1, 32, num_groups)
+        self.down_convolution_2 = double_convolution(32, 64, num_groups)
+        self.down_convolution_3 = double_convolution(64, 128, num_groups)
+        self.down_convolution_4 = double_convolution(128, 256, num_groups)
 
         # define bottleneck convolutions
-        self.down_convolution_bot = double_convolution(256, 512)
+        self.down_convolution_bot = double_convolution(256, 512, num_groups)
 
         # define encoder downsampling layers
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -139,13 +143,13 @@ class StudentUNet(nn.Module):
         self.up_transpose_4 = nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2)
 
         # define decoder convolutions
-        self.up_convolution_1 = double_convolution(512, 256)
-        self.up_convolution_2 = double_convolution(256, 128)
-        self.up_convolution_3 = double_convolution(128, 64)
-        self.up_convolution_4 = double_convolution(64, 32)
+        self.up_convolution_1 = double_convolution(512, 256, num_groups)
+        self.up_convolution_2 = double_convolution(256, 128, num_groups)
+        self.up_convolution_3 = double_convolution(128, 64, num_groups)
+        self.up_convolution_4 = double_convolution(64, 32, num_groups)
 
         # define output
-        self.out = nn.Conv2d(in_channels=32, out_channels=num_classes, kernel_size=1)
+        self.out = nn.Conv2d(in_channels=32, out_channels=self.num_classes, kernel_size=1)
 
     def forward(self, x):  # x = (B, 1, 512, 512)
         # encoder
