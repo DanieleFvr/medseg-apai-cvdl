@@ -5,7 +5,7 @@ from src.layers import double_convolution
 from src.ssl_rotation_prediction import SSLHead
 
 
-class UNet(nn.Module):  # TODO refine class description
+class TeacherUNet(nn.Module):  # TODO refine class description
     """
     This class defines the student model architecture.
     """
@@ -14,7 +14,7 @@ class UNet(nn.Module):  # TODO refine class description
             self,
             num_groups,
     ):
-        super(UNet, self).__init__()
+        super(TeacherUNet, self).__init__()
         self.num_classes_seg = 1
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)  # Define pooling layer
         self.sslHead = SSLHead(  # TODO rename sslHead --> ssl_head
@@ -114,3 +114,72 @@ class UNet(nn.Module):  # TODO refine class description
             return out
         else:  # Else we send images to sslHead after the encoder
             return self.sslHead(down_9)
+
+
+class StudentUNet(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+
+        # define encoder convolutions
+        self.down_convolution_1 = double_convolution(1, 32)
+        self.down_convolution_2 = double_convolution(32, 64)
+        self.down_convolution_3 = double_convolution(64, 128)
+        self.down_convolution_4 = double_convolution(128, 256)
+
+        # define bottleneck convolutions
+        self.down_convolution_bot = double_convolution(256, 512)
+
+        # define encoder downsampling layers
+        self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        # define
+        self.up_transpose_1 = nn.ConvTranspose2d(512, 256, kernel_size=2, stride=2)
+        self.up_transpose_2 = nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2)
+        self.up_transpose_3 = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2)
+        self.up_transpose_4 = nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2)
+
+        # define decoder convolutions
+        self.up_convolution_1 = double_convolution(512, 256)
+        self.up_convolution_2 = double_convolution(256, 128)
+        self.up_convolution_3 = double_convolution(128, 64)
+        self.up_convolution_4 = double_convolution(64, 32)
+
+        # define output
+        self.out = nn.Conv2d(in_channels=32, out_channels=num_classes, kernel_size=1)
+
+    def forward(self, x):  # x = (B, 1, 512, 512)
+        # encoder
+        e1 = self.down_convolution_1(x)  # (B, 32, 512, 512)
+        p1 = self.max_pool2d(e1)  # (B, 32, 256, 256)
+
+        e2 = self.down_convolution_2(p1)  # (B, 64, 256, 256)
+        p2 = self.max_pool2d(e2)  # (B, 64, 128, 128)
+
+        e3 = self.down_convolution_3(p2)  # (B, 128, 128, 128)
+        p3 = self.max_pool2d(e3)  # (B, 128, 64, 64)
+
+        e4 = self.down_convolution_4(p3)  # (B, 256, 64, 64)
+        p4 = self.max_pool2d(e4)  # (B, 256, 32, 32)
+
+        # bottleneck
+        bottleneck = self.down_convolution_bot(p4)  # (B, 512, 32, 32)
+
+        # decoder
+        t1 = self.up_transpose_1(bottleneck)  # (B, 256, 64, 64)
+        c1 = torch.cat([e4, t1], dim=1)  # (B, 512, 64, 64)
+        d1 = self.up_convolution_1(c1)  # (B, 256, 64, 64)
+
+        t2 = self.up_transpose_2(d1)  # (B, 128, 128, 128)
+        c2 = torch.cat([e3, t2], dim=1)  # (B, 256, 128, 128)
+        d2 = self.up_convolution_2(c2)  # (B, 128, 128, 128)
+
+        t3 = self.up_transpose_3(d2)  # (B, 64, 256, 256)
+        c3 = torch.cat([e2, t3], dim=1)  # (B, 128, 256, 256)
+        d3 = self.up_convolution_3(c3)  # (B, 64, 256, 256)
+
+        t4 = self.up_transpose_4(d3)  # (B, 32, 512, 512)
+        c4 = torch.cat([e1, t4], dim=1)  # (B, 64, 512, 512)
+        d4 = self.up_convolution_4(c4)  # (B, 32, 512, 512)
+
+        # output
+        return self.out(d4)  # (B, 1, 512, 512)

@@ -10,7 +10,7 @@ ROOT: str | Path = Path("/content/")  # TODO rename, not descriptive enough, and
 LOCAL_MANIFEST: str | Path = Path(f"{ROOT}/manifest_local.parquet")  # TODO should be lowercase
 ckpt_dir: Path = Path("/content/drive/MyDrive/APAI_CVDL_shared/checkpoints/")
 
-# Dataloaders
+# DataLoaders
 oversample: bool = True  # Oversampling flag
 k: float  = 0.5  # Oversampling multiplier
 

@@ -53,7 +53,7 @@ def validate_one_epoch(
         loader,
         criterion,
         device,
-        threshold,
+        threshold=0.5,  # TODO why is this only 0.5? Check where it's called
         eps=1e-6,
 ):
     """

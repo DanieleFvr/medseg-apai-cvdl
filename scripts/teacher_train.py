@@ -48,7 +48,7 @@ criterion = loss.FocalBCEDiceLoss(
 ).to(cfg.device)
 criterion_ssl = nn.CrossEntropyLoss().to(cfg.device)  # Initialize SSL criterion instance
 
-model = model.UNet(num_groups=cfg.num_groups).to(cfg.device)  # Initialize model
+model = model.TeacherUNet(num_groups=cfg.num_groups).to(cfg.device)  # Initialize model
 
 # Initialize optimizer
 optimizer = torch.optim.Adam(
@@ -125,7 +125,6 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                 loader=val_loader,
                 criterion=criterion,
                 device=cfg.device,
-                threshold=t,
             )
             # Print metrics to console every epoch
             utils.print_val_metrics(
