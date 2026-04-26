@@ -3,11 +3,8 @@ from pathlib import Path
 import torch
 
 
-def print_val_metrics(
-        threshold: float,
-        thresholds: list,
+def print_epoch_info(
         val_results: dict,
-        val_losses: list,
         train_loss: float,
         epoch: int,
         num_epochs: int,
@@ -22,21 +19,28 @@ def print_val_metrics(
     Returns:
         None, it prints only.
     """
-    if threshold == thresholds[0]:
-        val_loss = val_results["val_loss"]  # Get the validation loss for the current epoch
-        val_losses.append(val_loss)  # Append loss
+    print(
+        "\n-------\n"
+        f"EPOCH {epoch + 1}/{num_epochs} | "
+        f"TRAIN LOSS={train_loss:.4f} | "
+        f"VAL LOSS={val_results['val_loss']:.4f} | "
+        f"LR={optimizer.param_groups[0]['lr']} | "  # TODO where does this come from?
+        f"OHEM WEIGHT={criterion.neg_ohem_weight}"
+    )
 
-        # Print epoch number and losses (printed once every epoch)
-        print(
-            "\n-------\n"
-            f"EPOCH {epoch + 1}/{num_epochs} | "
-            f"TRAIN LOSS={train_loss:.4f} | "
-            f"VAL LOSS={val_results['val_loss']:.4f} | "
-            f"LR={optimizer.param_groups[0]['lr']} | "  # TODO where does this come from?
-            f"OHEM WEIGHT={criterion.neg_ohem_weight}"
-        )
 
-    # Print metrics (printed once per threshold value every epoch)  # TODO improve comment, unclear
+def print_epoch_metrics(
+        threshold: float,
+        val_results: dict,
+) -> None:
+    """
+    This functions prints useful information and metrics for every epoch.
+
+    Args:
+
+    Returns:
+        None, it prints only.
+    """
     print(
         f"THRESHOLD={threshold}\n"
         f"DSC={val_results['val_dsc']:.4f} | "
@@ -44,7 +48,6 @@ def print_val_metrics(
         f"FPIR={val_results['val_fpir']:.4f} | "
         f"FPHW={val_results['val_fphw']:.6f}"
     )
-
 
 def save_checkpoint(
         ckpt_path: Path,

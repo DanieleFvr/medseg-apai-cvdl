@@ -56,9 +56,6 @@ optimizer = optimizers.build_adam_optimizer(
     lr=cfg.lr_teacher,
 )
 
-train_losses: list[float] = []
-val_losses: list[float] = []
-
 # Calculate indexes for the very first round of AL
 ROUND_ID: int = 0  # First round
 # Rewrite the local manifest to account for the first round's sample selections
@@ -75,9 +72,11 @@ df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # Write the manifest to sele
 
 # Make checkpoint directory if not already present
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-ckpt_path = Path(cfg.ckpt_dir / f"{timestamp}_run")
+ckpt_path = Path(cfg.ckpt_dir / f"{timestamp}_teacher_run")
 ckpt_path.mkdir(parents=True, exist_ok=True)
 
+train_losses: list[float] = []
+val_losses: list[float] = []
 best_val_loss: float = float("inf")
 
 for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
@@ -126,24 +125,28 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                 criterion=criterion,
                 device=cfg.device,
             )
-            # Print metrics to console every epoch
-            utils.print_val_metrics(
+
+            if t == cfg.thresholds[0]:
+                val_loss = val_results["val_loss"]  # Get the validation loss for the current epoch
+                val_losses.append(val_loss)  # Append loss
+
+                utils.print_epoch_info(
+                    val_results=val_results,
+                    train_loss=train_loss,
+                    epoch=epoch,
+                    num_epochs=cfg.num_epochs,
+                    optimizer=optimizer,
+                    criterion=criterion,
+                )
+            utils.print_epoch_metrics(
                 threshold=t,
-                thresholds=cfg.thresholds,
                 val_results=val_results,
-                val_losses=val_losses,
-                train_loss=train_loss,
-                epoch=epoch,
-                num_epochs=cfg.num_epochs,
-                optimizer=optimizer,
-                criterion=criterion,
             )
 
         # Save chekpoints
         best_val_loss = utils.save_checkpoint(
             ckpt_path=ckpt_path,
             epoch=epoch,
-            round_id=r,
             model=model,
             optimizer=optimizer,
             best_val_loss=best_val_loss,
