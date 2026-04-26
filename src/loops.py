@@ -4,7 +4,7 @@ from tqdm import tqdm
 from src.ssl_rotation_prediction import make_ssl_batch
 
 
-def train_one_epoch(
+def train_teacher_one_epoch(
         model,
         loader,
         criterion,
@@ -48,7 +48,7 @@ def train_one_epoch(
 
 
 @torch.no_grad()
-def validate_one_epoch(
+def validate_teacher_one_epoch(
         model,
         loader,
         criterion,
@@ -147,24 +147,3 @@ def validate_one_epoch(
         "val_fpir": val_fpir,
         "val_fphw": val_fphw
     }
-
-
-def ohem_warmup_schedule(
-        round_id: int,
-        epoch: int,
-        activation_epoch: int,
-) -> float:
-    """
-    This is a helper function that sets a schedule for neg_ohem_weight.
-    """
-    if round_id == 0:  # TODO maybe get rid of this
-        if epoch < activation_epoch:
-            return 0.0
-        elif epoch < (activation_epoch + 2):
-            return 0.01
-        elif epoch < (activation_epoch + 4):
-            return 0.035
-        else:
-            return 0.05
-    else:
-        return 0.05

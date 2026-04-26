@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from datetime import datetime
 
-from src import data, active_learning, loss, model, teacher_train, utils, optimizers
+from src import data, active_learning, loss, model, loops, utils, optimizers, schedules
 from config import config as cfg
 
 
@@ -99,13 +99,13 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
 
     for epoch in range(cfg.num_epochs):
         # Apply OHEM warmup schedule
-        criterion.neg_ohem_weight = teacher_train.ohem_warmup_schedule(
+        criterion.neg_ohem_weight = schedules.ohem_warmup_schedule(
             round_id=r,
             epoch=epoch,
             activation_epoch=cfg.ohem_activation_epoch,
         )
         # Run training loop
-        train_loss = teacher_train.train_one_epoch(
+        train_loss = loops.train_teacher_one_epoch(
             model=model,
             loader=train_loader,
             criterion=criterion,
@@ -120,7 +120,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
         # Validation is run for every one of the thresholds that have been chosen in config, and all results are logged
         for t in cfg.thresholds:
             # Run validation
-            val_results = teacher_train.validate_one_epoch(
+            val_results = loops.validate_teacher_one_epoch(
                 model=model,
                 loader=val_loader,
                 criterion=criterion,
