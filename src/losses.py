@@ -3,7 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def dice_loss(logits, gt, eps=1e-6) -> torch.Tensor:
+def dice_loss(
+        logits,
+        gt,
+        eps=1e-6,
+) -> torch.Tensor:
     """
     This function computes the dice loss, with an eps term, between logits and gt.
 
@@ -49,7 +53,14 @@ class FocalBCEDiceLoss(nn.Module):
 
     """
 
-    def __init__(self, dice_weight, alpha, gamma, neg_ohem_weight, neg_topk):
+    def __init__(
+            self,
+            dice_weight: float,
+            alpha: float,
+            gamma: float,
+            neg_ohem_weight: float,
+            neg_topk: float,
+    ):
         super().__init__()
         self.dice_weight = dice_weight
         self.alpha = alpha
@@ -121,3 +132,24 @@ class FocalBCEDiceLoss(nn.Module):
 
         # Total loss
         return focal_bce + self.dice_weight * dice + self.neg_ohem_weight * neg_ohem
+
+
+class SoftKDLoss(nn.Module):
+    def __init__(self, T: float):
+        super().__init__()
+        self.T = float(T)
+        if T <= 0:
+            raise ValueError("temperature must be positive")
+
+    def forward(self, logits_s, logits_t):
+        probs_t = torch.sigmoid(logits_t.detach() / self.T)  # Compute teacher probs from teacher logits
+
+        # BCE between teacher and student logits
+        if logits_s.shape != probs_t.shape:
+            raise ValueError("teacher and student logits must have the same shape")
+        soft_loss = F.binary_cross_entropy_with_logits(
+            logits_s / self.T,
+            probs_t,  # torch.nn.functional.binary_cross_entropy_with_logits wants target with sigmoid already applied
+        )
+
+        return soft_loss * self.T ** 2
