@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from datetime import datetime
 
-from src import data, active_learning, loss, model, teacher_train, utils
+from src import data, active_learning, loss, model, teacher_train, utils, optimizers
 from config import config as cfg
 
 
@@ -51,8 +51,8 @@ criterion_ssl = nn.CrossEntropyLoss().to(cfg.device)  # Initialize SSL criterion
 model = model.TeacherUNet(num_groups=cfg.num_groups).to(cfg.device)  # Initialize model
 
 # Initialize optimizer
-optimizer = torch.optim.Adam(
-    model.parameters(),
+optimizer = optimizers.build_adam_optimizer(
+    model=model,
     lr=cfg.lr,
 )
 
