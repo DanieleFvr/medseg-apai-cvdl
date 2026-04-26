@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from datetime import datetime
 
-from src import data, active_learning, loss, model, loops, utils, optimizers, schedules
+from src import data, active_learning, losses, models, loops, utils, optimizers, schedules
 from config import config as cfg
 
 
@@ -39,7 +39,7 @@ train_loader, val_loader = data.build_dataloaders(
 center_crop = T.CenterCrop(size=cfg.center_crop_size)
 
 # Initialize teacher model criterion instance
-criterion = loss.FocalBCEDiceLoss(
+criterion = losses.FocalBCEDiceLoss(
     dice_weight=cfg.dice_weight,
     alpha=cfg.alpha,
     gamma=cfg.gamma,
@@ -48,7 +48,7 @@ criterion = loss.FocalBCEDiceLoss(
 ).to(cfg.device)
 criterion_ssl = nn.CrossEntropyLoss().to(cfg.device)  # Initialize SSL criterion instance
 
-model = model.TeacherUNet(num_groups=cfg.num_groups).to(cfg.device)  # Initialize model
+model = models.TeacherUNet(num_groups=cfg.num_groups).to(cfg.device)  # Initialize model
 
 # Initialize optimizer
 optimizer = optimizers.build_adam_optimizer(

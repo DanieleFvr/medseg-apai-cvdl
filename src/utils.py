@@ -15,7 +15,7 @@ def print_val_metrics(
         criterion,
 ) -> None:
     """
-    This functions prints useful information and metrics for every epoch in the console.
+    This functions prints useful information and metrics for every epoch.
 
     Args:
 

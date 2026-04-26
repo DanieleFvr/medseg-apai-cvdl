@@ -11,7 +11,6 @@ def build_adam_optimizer(
     Args:
         model (torch.nn.Module): the model to be optimized.
         lr (float): the learning rate.
-
     Returns:
         torch.optim.Optimizer: the optimizer for the model.
     """

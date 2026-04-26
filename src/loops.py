@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 
-from src.ssl_rotation_prediction import make_ssl_batch
+from src.ssl import make_ssl_batch
 
 
 def train_teacher_one_epoch(

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from src.layers import double_convolution
-from src.ssl_rotation_prediction import SSLHead
+from src.ssl import SSLHead
 
 
 class TeacherUNet(nn.Module):  # TODO refine class description
