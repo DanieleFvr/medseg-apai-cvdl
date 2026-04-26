@@ -89,7 +89,6 @@ class FocalBCEDiceLoss(nn.Module):
 
         # Convert to scalar
         focal_bce = focal_bce.mean()  # Scalar
-        assert focal_bce.ndim == 0, "focal_bce should be a scalar"
 
         # ----------------- DICE LOSS, ON POSITIVES ONLY
 
@@ -153,3 +152,30 @@ class SoftKDLoss(nn.Module):
         )
 
         return soft_loss * self.T ** 2
+
+
+class TotalKDLoss(nn.Module):
+    def __init__(
+            self,
+            hard_loss,
+            soft_loss,
+            w_soft,
+    ):
+        super().__init__()
+        self.hard_loss = hard_loss
+        self.soft_loss = soft_loss
+        self.w_soft = float(w_soft)
+        self.w_hard = (1.0 - self.w_soft)
+
+    def forward(self, logits_s, logits_t, gt):
+        # Compute hard and soft losses
+        hard_loss = self.hard_loss(logits_s, gt)
+        soft_loss = self.soft_loss(logits_s, logits_t)
+
+        # Compute total loss
+        total = self.w_hard * hard_loss + self.w_soft * soft_loss
+
+        return total, {
+            "soft_loss": soft_loss.detach(),
+            "hard_loss": hard_loss.detach(),
+        }

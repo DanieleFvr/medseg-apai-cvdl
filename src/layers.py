@@ -8,12 +8,13 @@ def double_convolution(
 ) -> nn.Sequential:
     """
     This function creates two consecutive convolution layers. GroupNorm is optional: just pass num_groups=None to
-    disable it.
+    disable it. GroupNorm is off by default for safety.
 
     Args:
         in_channels (int): number of input channels.
         out_channels (int): number of output channels.
-        num_groups (int | None): number of groups for GroupNorm, also used to deactivate GN if passed as None.
+        num_groups (int | None): number of groups for GroupNorm, also used to deactivate GN if passed as None. Set to
+            None by default.
     Returns:
         conv_op (nn.sequential): two convolution layers.
     """

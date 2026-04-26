@@ -23,9 +23,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Active learning sample selection
 batch_size: int = 8
 
-# Teacher model
-num_groups: int = 8  # Number of groups for GroupNorm
-
 # Teacher model criterion parameters
 dice_weight: float = 1.0
 alpha: float = 0.25
@@ -34,6 +31,7 @@ neg_ohem_weight: float = 0.05
 neg_topk: int = 1024
 
 # Teacher training hyperparameters
+num_groups: int | None = 8  # Number of groups for GroupNorm. To deactivate GN: set as None
 lr_teacher: float = 2.5e-5  # Starting LR
 ssl_loss_weight: float = 0.1
 num_epochs: int = 20
@@ -45,5 +43,17 @@ ohem_activation_epoch: int = 4
 # Validation config values
 thresholds: list[float] = [0.25, 0.5, 0.7]
 
+# Student model hard loss parameters
+hard_loss_dice_weight: float = 1.0
+hard_loss_alpha: float = 0.25
+hard_loss_gamma: float = 2.0
+hard_loss_neg_ohem_weight: float = 0.05
+hard_loss_neg_topk: int = 1024
+
+# Student model soft loss parameters
+soft_loss_temperature: float = 3.0  # Soft loss temperature
+soft_loss_weight: float = 0.1
+
 # Student training hyperparameters
 lr_student: float = 5e-5  # Starting LR
+student_num_groups: int | None = None  # Number of groups for GroupNorm. To deactivate GN: set as None
