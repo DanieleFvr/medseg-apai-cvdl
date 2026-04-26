@@ -49,7 +49,6 @@ def print_val_metrics(
 def save_checkpoint(
         ckpt_path: Path,
         epoch: int,
-        round_id: int,
         model,
         optimizer,
         best_val_loss: float,
@@ -57,7 +56,6 @@ def save_checkpoint(
 ):
     checkpoint = {
         "epoch": epoch + 1,
-        "round_id": round_id + 1,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "val_metrics": val_results,
@@ -67,7 +65,7 @@ def save_checkpoint(
 
     # Save best checkpoint if conditions are met
     if val_results["val_loss"] < best_val_loss:
-        torch.save(checkpoint, ckpt_path / f"best_checkpoint_epoch_{epoch + 1:03d}_round{round_id + 1:03d}.pt")
+        torch.save(checkpoint, ckpt_path / f"best_checkpoint_epoch_{epoch + 1:03d}.pt")
         return val_results["val_loss"]
     else:
         return best_val_loss
