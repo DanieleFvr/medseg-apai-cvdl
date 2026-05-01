@@ -4,12 +4,12 @@ import torch
 
 
 def print_epoch_info(
-        val_results: dict,
-        train_loss: float,
+        train_summary: str,  # str because it can accept a preformatted summary in case of multiple losses
+        val_summary: str,  # str because it can accept a preformatted summary in case of multiple losses
         epoch: int,
         num_epochs: int,
         optimizer,
-        criterion,
+        neg_ohem_weight: float,
 ) -> None:
     """
     This functions prints useful information and metrics for every epoch.
@@ -22,10 +22,10 @@ def print_epoch_info(
     print(
         "\n-------\n"
         f"EPOCH {epoch + 1}/{num_epochs} | "
-        f"TRAIN LOSS={train_loss:.4f} | "
-        f"VAL LOSS={val_results['val_loss']:.4f} | "
+        f"{train_summary} | "
+        f"{val_summary} | "
         f"LR={optimizer.param_groups[0]['lr']} | "  # TODO where does this come from?
-        f"OHEM WEIGHT={criterion.neg_ohem_weight}"
+        f"OHEM WEIGHT={neg_ohem_weight}"
     )
 
 

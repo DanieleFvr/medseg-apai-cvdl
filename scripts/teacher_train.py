@@ -1,11 +1,11 @@
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
 import torch
 from torchvision import transforms as T
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from datetime import datetime
 
 from src import data, active_learning, losses, models, loops, utils, optimizers, schedules
 from config import config as cfg
@@ -98,11 +98,16 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
 
     for epoch in range(cfg.num_epochs):
         # Apply OHEM warmup schedule
-        criterion.neg_ohem_weight = schedules.ohem_warmup_schedule(
-            round_id=r,
-            epoch=epoch,
-            activation_epoch=cfg.ohem_activation_epoch,
-        )
+        if r == 0  and cfg.teacher_ohem_warmup_active == True:  # OHEM warmup should only take place at the beginning of training
+            criterion.neg_ohem_weight = schedules.ohem_warmup_schedule(
+                epoch=epoch,
+                warmup_active=cfg.teacher_ohem_warmup_active,
+                activation_epoch=cfg.teacher_ohem_activation_epoch,
+                final_weight=cfg.teacher_ohem_final_weight,
+            )
+        else:
+            criterion.neg_ohem_weight = cfg.teacher_ohem_final_weight
+
         # Run training loop
         train_loss = loops.train_teacher_one_epoch(
             model=model,
@@ -131,12 +136,12 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                 val_losses.append(val_loss)  # Append loss
 
                 utils.print_epoch_info(
-                    val_results=val_results,
-                    train_loss=train_loss,
+                    val_summary=f"VAL LOSS={val_results['val_loss']:.4f}",
+                    train_summary=f"TRAIN LOSS={train_loss:.4f}",
                     epoch=epoch,
                     num_epochs=cfg.num_epochs,
                     optimizer=optimizer,
-                    criterion=criterion,
+                    neg_ohem_weight=criterion.neg_ohem_weight,
                 )
             utils.print_epoch_metrics(
                 threshold=t,

@@ -1,19 +1,20 @@
 def ohem_warmup_schedule(
-        round_id: int,
         epoch: int,
-        activation_epoch: int,
+        warmup_active: bool,
+        activation_epoch: int | None,
+        final_weight: float,
 ) -> float:
     """
     This is a helper function that sets a schedule for neg_ohem_weight.
     """
-    if round_id == 0:  # TODO maybe get rid of this
+    if warmup_active:  # TODO this is kind of crappy, I'll fix it if I have the time
         if epoch < activation_epoch:
             return 0.0
-        elif epoch < (activation_epoch + 2):
-            return 0.01
-        elif epoch < (activation_epoch + 4):
-            return 0.035
+        elif epoch < activation_epoch + 2:
+            return final_weight / 3
+        elif epoch < activation_epoch + 4:
+            return (final_weight / 3) * 2
         else:
-            return 0.05
+            return final_weight
     else:
-        return 0.05
+        return final_weight

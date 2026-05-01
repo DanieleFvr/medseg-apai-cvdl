@@ -38,7 +38,11 @@ num_epochs: int = 20
 ROUNDS: int = 5  # Number of AL rounds
 K: int = 3000  # Number of samples for the first AL round
 k_after_first_round: int = 200  # Number of samples selected on every round after the first
-ohem_activation_epoch: int = 4
+
+# Teacher OHEM parameters
+teacher_ohem_activation_epoch: int = 4  # Uninfluential if student_ohem_warmup_active == False
+teacher_ohem_final_weight: float = 0.05
+teacher_ohem_warmup_active: bool = True
 
 # Validation config values
 thresholds: list[float] = [0.25, 0.5, 0.7]
@@ -57,3 +61,10 @@ soft_loss_weight: float = 0.1
 # Student training hyperparameters
 lr_student: float = 5e-5  # Starting LR
 student_num_groups: int | None = None  # Number of groups for GroupNorm. To deactivate GN: set as None
+num_epochs_student: int = 20
+teacher_checkpoint_file_name = "epoch_005_round_003_1770036394.pt"
+
+# Student OHEM parameters
+student_ohem_activation_epoch: int = 4  # Uninfluential if student_ohem_warmup_active == False
+student_ohem_final_weight: float = 0.05  # Must be > 0.0
+student_ohem_warmup_active: bool = True
