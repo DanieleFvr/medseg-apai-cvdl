@@ -116,7 +116,7 @@ for epoch in range(cfg.num_epochs_student):
             loader=val_loader,
             criterion=hard_loss,
             device=cfg.device,
-            threshold=t,  # TODO fix that threshold = 0.5 issue, remember teacher_train.py doesn't pass this parameter
+            threshold=t,
         )
 
         if t == cfg.thresholds[0]:

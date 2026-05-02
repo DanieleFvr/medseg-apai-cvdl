@@ -53,7 +53,7 @@ def validate_teacher_one_epoch(
         loader,
         criterion,
         device,
-        threshold=0.5,  # TODO why is this only 0.5? Check where it's called, there's an issue with this
+        threshold,
         eps=1e-6,
 ):
     """
@@ -201,7 +201,7 @@ def validate_student_one_epoch(
         loader,
         criterion,
         device,
-        threshold=0.5,
+        threshold,
         eps=1e-6,
 ):
     model.eval()

@@ -129,6 +129,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                 loader=val_loader,
                 criterion=criterion,
                 device=cfg.device,
+                threshold=t,
             )
 
             if t == cfg.thresholds[0]:
@@ -155,7 +156,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
             model=model,
             optimizer=optimizer,
             best_val_loss=best_val_loss,
-            val_results=val_results,
+            val_results=val_results,  # TODO not visible
         )
 
     ROUND_ID += 1
