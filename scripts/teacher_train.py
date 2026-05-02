@@ -122,6 +122,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
         train_losses.append(train_loss)
 
         # Validation is run for every one of the thresholds that have been chosen in config, and all results are logged
+        primary_val_results = None
         for t in cfg.thresholds:
             # Run validation
             val_results = loops.validate_teacher_one_epoch(
@@ -133,8 +134,8 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
             )
 
             if t == cfg.thresholds[0]:
-                val_loss = val_results["val_loss"]  # Get the validation loss for the current epoch
-                val_losses.append(val_loss)  # Append loss
+                val_loss = val_results["val_loss"]
+                val_losses.append(val_loss)
 
                 utils.print_epoch_info(
                     val_summary=f"VAL LOSS={val_results['val_loss']:.4f}",
@@ -144,10 +145,17 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
                     optimizer=optimizer,
                     neg_ohem_weight=criterion.neg_ohem_weight,
                 )
+
+            if t == cfg.primary_threshold:
+                primary_val_results = val_results
+
             utils.print_epoch_metrics(
                 threshold=t,
                 val_results=val_results,
             )
+
+        if primary_val_results is None:
+            raise ValueError(f"primary_threshold must be set to one of the thresholds {cfg.thresholds} in config.")
 
         # Save chekpoints
         best_val_loss = utils.save_checkpoint(
@@ -156,7 +164,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
             model=model,
             optimizer=optimizer,
             best_val_loss=best_val_loss,
-            val_results=val_results,  # TODO not visible
+            val_results=primary_val_results,  # TODO save_checkpoint() expects dict, but can be None (but stopped at runtime by raise)
             round_id=ROUND_ID,
         )
 

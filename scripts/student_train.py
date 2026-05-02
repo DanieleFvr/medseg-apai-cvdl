@@ -109,6 +109,7 @@ for epoch in range(cfg.num_epochs_student):
 
     train_hard_losses.append(train_loss["train_hard_loss"])
 
+    primary_val_results = None
     for t in cfg.thresholds:
         # Run validation
         val_results = loops.validate_student_one_epoch(
@@ -123,7 +124,7 @@ for epoch in range(cfg.num_epochs_student):
             # Get the val loss for that epoch
             # Note: any threshold is fine, but only one must be chosen; I chose the first
             val_loss = val_results["val_loss"]
-            val_losses.append(val_loss)  # Append loss
+            val_losses.append(val_loss)
 
             utils.print_epoch_info(
                 val_summary=f"VAL LOSS={val_results['val_loss']:.4f}",
@@ -138,10 +139,17 @@ for epoch in range(cfg.num_epochs_student):
                 neg_ohem_weight=criterion_s.hard_loss.neg_ohem_weight,  # hard_loss specifically, because it needs to
                 # pass the current OHEM weight
             )
+
+        if t == cfg.primary_threshold:
+            primary_val_results = val_results
+
         utils.print_epoch_metrics(
             threshold=t,
             val_results=val_results,
         )
+
+    if primary_val_results is None:
+        raise ValueError(f"primary_threshold must be set to one of the thresholds {cfg.thresholds} in config.")
 
     # Save chekpoints
     best_val_loss = utils.save_checkpoint(
@@ -150,5 +158,5 @@ for epoch in range(cfg.num_epochs_student):
         model=model_s,
         optimizer=student_optimizer,
         best_val_loss=best_val_loss,
-        val_results=val_results,
+        val_results=primary_val_results,
     )

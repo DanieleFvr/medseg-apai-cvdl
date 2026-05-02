@@ -44,8 +44,9 @@ teacher_ohem_activation_epoch: int = 4  # Uninfluential if student_ohem_warmup_a
 teacher_ohem_final_weight: float = 0.05
 teacher_ohem_warmup_active: bool = True
 
-# Validation config values
+# Thresholding
 thresholds: list[float] = [0.25, 0.5, 0.7]
+primary_threshold: float = 0.5  # Used in checkpointing
 
 # Student model hard loss parameters
 hard_loss_dice_weight: float = 1.0
