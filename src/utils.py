@@ -56,15 +56,18 @@ def save_checkpoint(
         optimizer,
         best_val_loss: float,
         val_results: dict,
+        round_id: int | None = None,
 ):
     checkpoint = {
         "epoch": epoch + 1,
+        "round_id": round_id + 1 if round_id is not None else None,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "val_metrics": val_results,
     }
 
-    torch.save(checkpoint, ckpt_path / f"latest_checkpoint.pt")  # Save last checkpoint
+    # Save last checkpoint
+    torch.save(checkpoint, ckpt_path / f"latest_checkpoint.pt")
 
     # Save best checkpoint if conditions are met
     if val_results["val_loss"] < best_val_loss:

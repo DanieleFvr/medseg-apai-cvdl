@@ -157,6 +157,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
             optimizer=optimizer,
             best_val_loss=best_val_loss,
             val_results=val_results,  # TODO not visible
+            round_id=ROUND_ID,
         )
 
     ROUND_ID += 1
