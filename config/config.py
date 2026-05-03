@@ -40,9 +40,9 @@ K: int = 3000  # Number of samples for the first AL round
 k_after_first_round: int = 200  # Number of samples selected on every round after the first
 
 # Teacher OHEM parameters
-teacher_ohem_activation_epoch: int = 4  # Uninfluential if student_ohem_warmup_active == False
-teacher_ohem_final_weight: float = 0.05
 teacher_ohem_warmup_active: bool = True
+teacher_ohem_activation_epoch: int = 4  # Uninfluential if teacher_ohem_warmup_active == False
+teacher_ohem_final_weight: float = 0.05
 
 # Thresholding
 thresholds: list[float] = [0.25, 0.5, 0.7]
@@ -66,6 +66,6 @@ num_epochs_student: int = 20
 teacher_checkpoint_file_name = "epoch_005_round_003_1770036394.pt"
 
 # Student OHEM parameters
+student_ohem_warmup_active: bool = True
 student_ohem_activation_epoch: int = 4  # Uninfluential if student_ohem_warmup_active == False
 student_ohem_final_weight: float = 0.05  # Must be > 0.0
-student_ohem_warmup_active: bool = True

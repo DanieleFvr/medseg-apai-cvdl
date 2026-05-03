@@ -171,7 +171,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
             model=model,
             optimizer=optimizer,
             best_val_loss=best_val_loss,
-            val_results=primary_val_results,  # TODO save_checkpoint() expects dict, but can be None (but stopped at runtime by raise)
+            val_results=primary_val_results,
             round_id=ROUND_ID,
         )
 
