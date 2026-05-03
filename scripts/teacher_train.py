@@ -47,6 +47,13 @@ criterion = losses.FocalBCEDiceLoss(
     neg_topk=cfg.neg_topk,
 ).to(cfg.device)
 criterion_ssl = nn.CrossEntropyLoss().to(cfg.device)  # Initialize SSL criterion instance
+val_criterion = losses.FocalBCEDiceLoss(
+    dice_weight=cfg.dice_weight,
+    alpha=cfg.alpha,
+    gamma=cfg.gamma,
+    neg_ohem_weight=cfg.teacher_ohem_final_weight,
+    neg_topk=cfg.neg_topk,
+).to(cfg.device)
 
 model = models.TeacherUNet(num_groups=cfg.num_groups).to(cfg.device)  # Initialize model
 
@@ -128,7 +135,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
             val_results = loops.validate_teacher_one_epoch(
                 model=model,
                 loader=val_loader,
-                criterion=criterion,
+                criterion=val_criterion,
                 device=cfg.device,
                 threshold=t,
             )

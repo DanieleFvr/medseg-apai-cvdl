@@ -46,6 +46,13 @@ hard_loss = losses.FocalBCEDiceLoss(
     neg_ohem_weight=cfg.hard_loss_neg_ohem_weight,
     neg_topk=cfg.hard_loss_neg_topk,
 ).to(cfg.device)
+val_hard_loss = losses.FocalBCEDiceLoss(
+    dice_weight=cfg.hard_loss_dice_weight,
+    alpha=cfg.hard_loss_alpha,
+    gamma=cfg.hard_loss_gamma,
+    neg_ohem_weight=cfg.student_ohem_final_weight,
+    neg_topk=cfg.hard_loss_neg_topk,
+).to(cfg.device)
 
 # Compute soft loss
 soft_loss = losses.SoftKDLoss(T=cfg.soft_loss_temperature).to(cfg.device)
@@ -115,7 +122,7 @@ for epoch in range(cfg.num_epochs_student):
         val_results = loops.validate_student_one_epoch(
             model=model_s,
             loader=val_loader,
-            criterion=hard_loss,
+            criterion=val_hard_loss,
             device=cfg.device,
             threshold=t,
         )
