@@ -138,7 +138,7 @@ def build_dataloaders(
         val_ds: torch.utils.data.Dataset,
         df_train: pd.DataFrame,
         oversample: bool,
-        k: float
+        k: float = 0.5,
 ) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
     """
     This function builds the training and validation dataloaders.

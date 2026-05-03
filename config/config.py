@@ -9,6 +9,7 @@ LOCAL_ROOT: str | Path = Path("/content/data/pre/img/")  # TODO should be lowerc
 ROOT: str | Path = Path("/content/")  # TODO rename, not descriptive enough, and should be lowercase
 LOCAL_MANIFEST: str | Path = Path(f"{ROOT}/manifest_local.parquet")  # TODO should be lowercase
 ckpt_dir: Path = Path("/content/drive/MyDrive/APAI_CVDL_shared/checkpoints/")
+teacher_checkpoint_for_kd_file_name = "epoch_005_round_003_1770036394.pt"
 
 # DataLoaders
 oversample: bool = True  # Oversampling flag
@@ -63,7 +64,6 @@ soft_loss_weight: float = 0.1
 lr_student: float = 5e-5  # Starting LR
 student_num_groups: int | None = None  # Number of groups for GroupNorm. To deactivate GN: set as None
 num_epochs_student: int = 20
-teacher_checkpoint_file_name = "epoch_005_round_003_1770036394.pt"
 
 # Student OHEM parameters
 student_ohem_warmup_active: bool = True

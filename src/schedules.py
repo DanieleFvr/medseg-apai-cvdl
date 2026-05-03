@@ -1,4 +1,4 @@
-def ohem_warmup_schedule(  # TODO this is kind of crappy, I'll improve it if I have the time
+def ohem_warmup_schedule(
         epoch: int,
         warmup_active: bool,
         activation_epoch: int,

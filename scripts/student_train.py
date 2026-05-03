@@ -34,7 +34,7 @@ train_ds, val_ds = data.build_datasets(
 train_loader, val_loader = data.build_dataloaders(
     train_ds=train_ds,
     val_ds=val_ds,
-    df_train=df_labeled,
+    df_train=df_train_s,
     oversample=False,
 )  # TODO what's the best practice for the missing k param?
 
@@ -73,7 +73,7 @@ student_optimizer = optimizers.build_adam_optimizer(
 )
 
 # Load trained teacher checkpoint
-teacher_checkpoint_path = Path(cfg.ckpt_dir / cfg.teacher_checkpoint_file_name)
+teacher_checkpoint_path = Path(cfg.ckpt_dir / cfg.teacher_checkpoint_for_kd_file_name)
 
 # Load teacher checkpoint
 trained_teacher_ckpt = torch.load(teacher_checkpoint_path, map_location=cfg.device)

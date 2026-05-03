@@ -105,7 +105,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
 
     for epoch in range(cfg.num_epochs):
         # Apply OHEM warmup schedule
-        if r == 0  and cfg.teacher_ohem_warmup_active == True:  # OHEM warmup should only take place at the beginning of training
+        if r == 0  and cfg.teacher_ohem_warmup_active:  # OHEM warmup should only take place at the beginning of training
             criterion.neg_ohem_weight = schedules.ohem_warmup_schedule(
                 epoch=epoch,
                 warmup_active=cfg.teacher_ohem_warmup_active,

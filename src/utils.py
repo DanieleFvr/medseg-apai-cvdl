@@ -25,7 +25,7 @@ def print_epoch_info(
         f"{train_summary} | "
         f"{val_summary} | "
         f"LR={optimizer.param_groups[0]['lr']} | "  # TODO where does this come from?
-        f"OHEM WEIGHT={neg_ohem_weight}"
+        f"TRAIN OHEM W={neg_ohem_weight}"
     )
 
 
@@ -70,8 +70,12 @@ def save_checkpoint(
     torch.save(checkpoint, ckpt_path / f"latest_checkpoint.pt")
 
     # Save best checkpoint if conditions are met
+
     if val_results["val_loss"] < best_val_loss:
-        torch.save(checkpoint, ckpt_path / f"best_checkpoint_epoch_{epoch + 1:03d}.pt")
+        if round_id is not None:
+            torch.save(checkpoint, ckpt_path / f"best_checkpoint_epoch_{epoch + 1:03d}_round_{round_id + 1:03d}.pt")
+        else:
+            torch.save(checkpoint, ckpt_path / f"best_checkpoint_epoch_{epoch + 1:03d}.pt")
         return val_results["val_loss"]
     else:
         return best_val_loss
