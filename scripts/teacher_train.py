@@ -63,20 +63,6 @@ optimizer = optimizers.build_adam_optimizer(
     lr=cfg.lr_teacher,
 )
 
-# Calculate indexes for the very first round of AL
-ROUND_ID: int = 0  # First round
-# Rewrite the local manifest to account for the first round's sample selections
-df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
-    model=model,
-    local_manifest=cfg.LOCAL_MANIFEST,
-    round_id=ROUND_ID,
-    device=cfg.device,
-    K=cfg.K,
-    batch_size=8,
-)  # TODO shouldn't this be at the beginning of the for loop? Test and maybe move it
-
-df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)  # Write the manifest to select them  #TODO fix comment
-
 # Make checkpoint directory if not already present
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 ckpt_path = Path(cfg.ckpt_dir / f"{timestamp}_teacher_run")
@@ -87,6 +73,26 @@ val_losses: list[float] = []
 best_val_loss: float = float("inf")
 
 for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
+    if r == 0:
+        K = cfg.K
+    else:
+        K = cfg.k_after_first_round
+
+    select_samples = active_learning.select_next_round_uncertainty(
+        # TODO first round samples should be random
+        model=model,
+        local_manifest=cfg.LOCAL_MANIFEST,
+        round_id=r,
+        device=cfg.device,
+        K=K,
+        batch_size=8,
+    )
+    if select_samples is None:
+        print("No unlabeled samples left to be selected, active learning loop interrupted.")
+        break
+    df_new, selected_image_ids = select_samples
+    df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)
+
     # Build training and validation Datasets
     train_L_ds = data.PneumoDatasetForAL(
         cfg.LOCAL_MANIFEST,
@@ -105,7 +111,7 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
 
     for epoch in range(cfg.num_epochs):
         # Apply OHEM warmup schedule
-        if r == 0  and cfg.teacher_ohem_warmup_active:  # OHEM warmup should only take place at the beginning of training
+        if r == 0 and cfg.teacher_ohem_warmup_active:  # OHEM warmup should only take place at the beginning of training
             criterion.neg_ohem_weight = schedules.ohem_warmup_schedule(
                 epoch=epoch,
                 warmup_active=cfg.teacher_ohem_warmup_active,
@@ -172,17 +178,5 @@ for r in range(cfg.ROUNDS):  # TODO rename "r" to "round" for clarity
             optimizer=optimizer,
             best_val_loss=best_val_loss,
             val_results=primary_val_results,
-            round_id=ROUND_ID,
+            round_id=r,
         )
-
-    ROUND_ID += 1
-    df_new, selected_image_ids = active_learning.select_next_round_uncertainty(
-        # TODO is selected_image_ids never used?
-        model=model,
-        local_manifest=cfg.LOCAL_MANIFEST,
-        round_id=ROUND_ID,
-        device=cfg.device,
-        K=cfg.k_after_first_round,
-        batch_size=8,
-    )  # TODO shouldn't this too be at the beginning of the for loop? (only one)
-    df_new.to_parquet(cfg.LOCAL_MANIFEST, index=False)
