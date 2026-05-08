@@ -62,7 +62,7 @@ def select_next_round_uncertainty(
     model.eval()
     all_idx = []
     all_score = []
-    pbar = tqdm(loader_u, desc=f" [calculating indexes]")
+    pbar = tqdm(loader_u, desc=f"Computing uncertainty scores")
 
     for idx_batch, x in pbar:
         x = x.to(device)

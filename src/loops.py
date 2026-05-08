@@ -20,24 +20,28 @@ def train_teacher_one_epoch(
     Returns:
         Loss averaged over all batches in one epoch.
     """
+    if not 0.0 <= ssl_loss_weight <= 1.0:
+        raise ValueError("ssl_loss_weight should be a value between 0.0 and 1.0 included.")
+    use_ssl = ssl_loss_weight > 0.0
+
     model.train()
     running_loss = 0.0
     count_batches = 0
 
     # For each batch:
-    for imgs, masks in tqdm(loader, desc="train", leave=False):  # TODO is it ok to leave tqdm?
+    for imgs, masks in tqdm(loader, desc="Training", leave=False):
         imgs, masks = imgs.to(device), masks.to(device).float()
-        imgs_ssl, labels_ssl = make_ssl_batch(imgs, center_crop)
-        imgs_ssl = imgs_ssl.to(device)
-        labels_ssl = labels_ssl.to(device)
         optimizer.zero_grad()
         logits = model(imgs, is_seg=True)  # Forward pass (segmentation)
-        logits_ssl = model(imgs_ssl, is_seg=False)  # Forward pass (SSL)
+        loss = criterion(logits, masks)
 
-        # Compute loss
-        loss_SEG = criterion(logits, masks)  # TODO inconsistent naming style, lowercase
-        loss_SSL = criterion_ssl(logits_ssl, labels_ssl)
-        loss = loss_SEG + (loss_SSL * ssl_loss_weight)
+        if use_ssl:
+            imgs_ssl, labels_ssl = make_ssl_batch(imgs, center_crop)
+            imgs_ssl = imgs_ssl.to(device)
+            labels_ssl = labels_ssl.to(device)
+            logits_ssl = model(imgs_ssl, is_seg=False)  # Forward pass (SSL)
+            loss_SSL = criterion_ssl(logits_ssl, labels_ssl)
+            loss = loss + (loss_SSL * ssl_loss_weight)
 
         loss.backward()
         optimizer.step()
@@ -77,7 +81,7 @@ def validate_teacher_one_epoch(
     neg_fphw_sum = 0.0  # Sum over negative samples of FP pixels/HW (thresholded)
 
     # For each batch...
-    for imgs, masks in tqdm(loader, desc="val", leave=False):
+    for imgs, masks in tqdm(loader, desc="Validating", leave=False):
         imgs, masks = imgs.to(device), masks.to(device).float()
 
         # Forward pass
@@ -166,7 +170,7 @@ def train_student_one_epoch(
     count_batches = 0
 
     # For each batch...
-    for imgs, masks in tqdm(loader, desc="train", leave=False):
+    for imgs, masks in tqdm(loader, desc="Training", leave=False):
         imgs, masks = imgs.to(device), masks.to(device).float()
         optimizer.zero_grad()
 
@@ -220,7 +224,7 @@ def validate_student_one_epoch(
     neg_fphw_sum = 0.0  # Sum over negative samples of FP pixels/HW (thresholded)
 
     # For each batch...
-    for imgs, masks in tqdm(loader, desc="val", leave=False):
+    for imgs, masks in tqdm(loader, desc="Validating", leave=False):
         # Moving tensors to device
         imgs, masks = imgs.to(device), masks.to(device).float()
 
